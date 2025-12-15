@@ -12,7 +12,7 @@ import urllib.request
 import webbrowser
 
 version_actual = "1.0"
-usuario = "vamotesdragons546-a11y" 
+usuario = "sys-T-a11y" 
 repositorio = "En-Par-" 
 
 # CORRECCIÓN APLICADA AQUÍ: Uso de variables dentro de f-strings
