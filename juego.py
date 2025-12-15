@@ -8,6 +8,42 @@ import sys
 import time
 import numpy as np
 
+# --- Actualización -------------------------------------------------------------------------------------
+import urllib.request
+import webbrowser
+
+
+version_actual = "1.0"
+usuario = "vamotesdragons546-a11y" 
+repositorio = "En-Par-" 
+
+URL_VERSION = f"https://raw.githubusercontent.com/{vamotesdragons546-a11y}/{En-Par-}/main/version.txt"
+URL_REPO = f"https://github.com/{vamotesdragons546-a11y}/{En-Par-}"
+
+def verificar_actualizacion():
+    """Consulta a GitHub si hay una versión nueva."""
+    print(" Buscando actualizaciones...", end="\r")
+    try:
+        # Leer el archivo version.txt desde internet
+        with urllib.request.urlopen(URL_VERSION) as response:
+            version_online = response.read().decode('utf-8').strip()
+            
+        if version_online != version_actual:
+            limpiar_pantalla()
+            print("| Nueva versión disponible ¬¬ |")
+            print(f"   Versión actual: {version_actual}")
+            print(f"   Nueva versión: {version_online}")
+            print("\n   Se abrirá la página de descarga en 3 segundos...")
+            time.sleep(3)
+            webbrowser.open(URL_REPO)
+            return True # Hay actualización
+            
+    except Exception:
+        pass # Si falla (sin internet), no te voy a molestar, puedes jugar tranquilo.
+    return False
+
+# ------------------------------------------------------------------------------   Eliminar terminal
+
 def limpiar_pantalla():
     # Intentar limpieza por secuencia ANSI (más inmediata en muchos terminales)
     try:
@@ -18,6 +54,7 @@ def limpiar_pantalla():
         os.system('cls')
     else:
         os.system('clear')
+# ------------------------------------------------------------------------------    Puntos del juego
 
 
 def obtener_valor_puntos(filas):
@@ -28,12 +65,16 @@ def obtener_valor_puntos(filas):
     if filas == 8:
         return 30
     return 0
+# ------------------------------------------------------------------------------   Las matrices de las cartas
 
 
 def crear_juego(filas, columnas):
     cartas = list(range(1, (filas * columnas) // 2 + 1)) * 2
     random.shuffle(cartas)
     return np.array(cartas).reshape(filas, columnas)
+
+
+# ------------------------------------------------------------------------------   Lo que se muestra en el tablero de cartas
 
 
 def mostrar_tablero(cartas_visibles, cartas, header=None):
@@ -54,6 +95,7 @@ def mostrar_tablero(cartas_visibles, cartas, header=None):
                 
         print()
 
+# ------------------------------------------------------------------------------    Ubicación de la carta
 
 
 def pedir_coordenada_validada(prompt, max_dim, funcion_redibujar):
@@ -87,6 +129,10 @@ def pedir_coordenada_validada(prompt, max_dim, funcion_redibujar):
         
         if funcion_redibujar:
             funcion_redibujar()
+
+# ------------------------------------------------------------------------------    Evita errores que no pueden otras validaciones (Adaptado para maCos, Unix y Windows)
+
+
 
 def flush_input():
     """Descarta cualquier entrada pendiente en stdin.
@@ -124,6 +170,9 @@ def flush_input():
         # No podemos descartar la entrada; seguir sin fallo
         pass
 
+# ------------------------------------------------------------------------------   Comprueba las cartas
+
+
 
 def revelar_y_comprobar(cartas, visibles, f1, c1, f2, c2, puntos_por_pareja):
     """Revela dos cartas, devuelve (matched: bool, puntos: int)."""
@@ -133,6 +182,10 @@ def revelar_y_comprobar(cartas, visibles, f1, c1, f2, c2, puntos_por_pareja):
         return True, puntos_por_pareja
     # si no coinciden, ocultar después de llamar
     return False, 0
+
+
+# ------------------------------------------------------------------------------   Creación del juevo competitivo VS
+
 
 
 def jugar_versus(nombres):
@@ -174,14 +227,14 @@ def jugar_versus(nombres):
     while encontradas < total_parejas:
         p = players[current]
 
-        def turno_base():
+        def turno_base():        # def para mostrar puntaje
             limpiar_pantalla()
             # Mostramos puntajes de todos para fomentar la competencia muajajaj
             scores = " | ".join([f"{pl['name']}: {pl['score']}" for pl in players])
             header = f"--- Turno de: {p['name']} ---\n{scores}\nParejas restantes: {total_parejas - encontradas}\n"
             mostrar_tablero(visibles, cartas, header=header)
 
-        def ver_carta1():
+        def ver_carta1():       # def para indicar que estas en la carta 1
             turno_base()
             print("--> Carta 1")
         
@@ -195,7 +248,7 @@ def jugar_versus(nombres):
                 print('Saliendo partida...')
                 time.sleep(1); return
             
-            def ver_columna1():
+            def ver_columna1():      # def para que también en la columna te diga que estás en la carta 1 mostrandote también la fila que seleccionaste
                 ver_carta1()
                 print(f"--> Fila: {f1}")
 
@@ -214,7 +267,7 @@ def jugar_versus(nombres):
 
         visibles[f1, c1] = True
 
-        def ver_carta2():
+        def ver_carta2():            # otro def para mostrarte la carta
             turno_base()
             print(f"--> Carta 1: {cartas[f1, c1]}")
             print("--> Carta 2")
@@ -230,7 +283,7 @@ def jugar_versus(nombres):
                 time.sleep(0.7)
                 return
 
-            def ver_columna2():
+            def ver_columna2():        # otro def para mostrar carta en la columna
                 ver_carta2()
                 print(f"--> Fila 2: {f2}")
 
@@ -296,6 +349,9 @@ def jugar_versus(nombres):
     input("Presiona Enter para salir...")
     flush_input()
 
+# ------------------------------------------------------------------------------    Creación reglas del juego
+
+
 
 def Reglas_del_Juego():
     limpiar_pantalla()
@@ -304,6 +360,10 @@ def Reglas_del_Juego():
     print("2) Los jugadores deberán ponerse de acuerdo para ver quien comienza.")
     print("3) El ganador se definirá por quien tenga más puntos al finalizar el juego.")
     print("4) En Versus, si aciertas una pareja, continúas jugando; si fallas, pasa el turno.\n")
+
+
+# ------------------------------------------------------------------------------     Creación del juego individual
+
 
 
 def jugar_solitario():
@@ -337,7 +397,7 @@ def jugar_solitario():
     puntaje_total = 0
 
     limpiar_pantalla()
-    def dibujar_pantalla():
+    def dibujar_pantalla():         # def para mostrar puntaje y otras cosas
         header = f"Puntaje actual: {puntaje_total}"
         mostrar_tablero(visibles, cartas, header=header)
 
@@ -349,7 +409,7 @@ def jugar_solitario():
     
     while encontradas < total_parejas:
 
-        def redibujar_c1():
+        def redibujar_c1():         # def  para que no desaparezca la posicion ni las cartas al haber un error
             dibujar_pantalla()
             print("--> Carta 1")
 
@@ -365,7 +425,7 @@ def jugar_solitario():
                 
                 return
                 
-            def redibujar_fila1():
+            def redibujar_fila1():       # def para redibujar la fila 1
                 redibujar_c1()
                 print(f"--> Fila 1: {f1}")
             c1 = pedir_coordenada_validada(f"Columna (0-{B-1}): ", B, redibujar_fila1)
@@ -385,7 +445,7 @@ def jugar_solitario():
         
         # Segunda carta
 
-        def redibujar_c2():
+        def redibujar_c2():            # def igual que para la carta 1 peoro ahora para la casrta 2
             limpiar_pantalla()
             dibujar_pantalla()
             print(f"--> Carta 1: {cartas[f1, c1]}")
@@ -399,7 +459,7 @@ def jugar_solitario():
             f2 = pedir_coordenada_validada(f"Fila (0-{A-1}): ", A, redibujar_c2)
             if f2 == -1:
                 return
-            def redibujar_fila2():
+            def redibujar_fila2():      # def para mostrar la fila de la carta 2
                 redibujar_c2()
                 print(f"--> Fila 2: {f2}")
             c2 = pedir_coordenada_validada(f"Columna (0-{B-1}): ", B, redibujar_fila2)
@@ -440,12 +500,22 @@ def jugar_solitario():
     input('\nPresiona Enter para volver al menú...')
     flush_input()
 
-def modos_disponibles():
+
+# ------------------------------------------------------------------------------   Muestra los modos de juego
+
+
+def modos_disponibles():      
     print('\nModos disponibles:')
     print('[1] Solitario')
     print('[2] Versus (2-3 jugadores)\n')
 
+
+# ------------------------------------------------------------------------------  Main para evitar errores no deseados en el archivo
+
+
+
 if __name__ == '__main__':
+    verificar_actualizacion()
     # Menú principal: elegir modo
     while True:
         limpiar_pantalla()
@@ -481,7 +551,7 @@ if __name__ == '__main__':
                     limpiar_pantalla()
                     nombres = []
 
-        # ---------------------------------- NUEVO BLOQUE DE CÓDIGO -----------------------------------------------
+        # ---------------------------------- NUEVO BLOQUE DE CÓDIGO -----------------------------------------------   Este bloque esta dedicado a los nombres de los jugadores, poder editarlos, y confirmarlos.
                     def mostrar_progreso():
                         limpiar_pantalla()
                         registrados = len(nombres)
@@ -577,14 +647,12 @@ if __name__ == '__main__':
                                         print(f"Ingresa un número entre 1 y {num}.")
                                 except ValueError:
                                     print("Entrada inválida.")
-                            
-                            
+                                                   
                             continue
-
+        
+  # -------------------------------------------------------------------------------------------------------------      
 
                     
-        
-  # -------------------------------------------------------------------------------------------------------------                                       
                     jugar_versus(nombres)
                     input('\nPresiona Enter para volver al menú...')
                     break
